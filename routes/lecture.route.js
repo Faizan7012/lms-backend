@@ -1,6 +1,6 @@
 const express = require("express");
-const { adminAuth } = require("../middlewares/admin");
 const { lectureModel } = require("../models/lecture.model");
+const { adminAuth } = require("../middlewares/admin");
 const { courseModel } = require("../models/course.model");
 const { userAuth } = require("../middlewares/user");
 const lectureRoute = express.Router();
@@ -26,6 +26,7 @@ lectureRoute.post("/create",adminAuth,async(req,res)=>{
 
         res.status(201).send({message:"Lecture Created", status:true,newLecture});
     } catch (error) {
+        console.log(error)
         res.status(500).send({ message: error.message , status:false});
     }
 })

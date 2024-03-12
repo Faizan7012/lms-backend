@@ -1,9 +1,9 @@
 const express = require("express");
 const { adminAuth } = require("../middlewares/admin");
 const { courseModel } = require("../models/course.model");
-const { lectureModel } = require("../models/lecture.model");
-const userModel = require("../models/user.model");
 const { userAuth } = require("../middlewares/user");
+const { lectureModel } = require("../models/lecture.model");
+const { userModel } = require("../models/user.model");
 const courseRoute = express.Router();
 
 courseRoute.post("/create" , adminAuth,async(req,res)=>{
@@ -78,8 +78,8 @@ courseRoute.delete('/:id', adminAuth ,async (req, res) => {
         if (!deletedCourse) {
             return res.status(404).send({ message: 'Course not found', status:false });
         }
-        await lectureModel.deleteMany({ course: courseId });
-        await userModel.updateMany({}, { $pull: { course: courseId } });
+        await lectureModel.deleteMany({ course: req.params.id });
+        await userModel.updateMany({}, { $pull: { course: req.params.id } });
         res.status(201).send({ message: 'Course deleted successfully' , status:true});
     } catch (error) {
         res.status(500).send({ message: error.message , status:false});

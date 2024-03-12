@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 
 const userSchema = Schema({
     name: {
@@ -19,9 +19,17 @@ const userSchema = Schema({
         default: 'user',
         enum : ['user' ,'admin']
     },
-    course: [ { type:Schema.Types.ObjectId, ref: 'course', required: true  , default :[]}],
+    courses:{
+        default : [],
+        required:true,
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: 'course'
+          }],
+    }
+   
 }, { timestamp: true });
 
 const userModel = model("user", userSchema);
 
-module.exports = userModel
+module.exports = {userModel}

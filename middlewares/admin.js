@@ -4,17 +4,23 @@ const jwt = require("jsonwebtoken");
 require('dotenv').config();
 
 // Middleware for authentication using JWT
-const userAuth = (req, res, next) => {
+const adminAuth = (req, res, next) => {
     const token = req.headers.token;
 
     if (token) {
         try {
             // Verifying the token using the secret key 'name'
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.body.userId = decoded.userId;
-            req.body.role = decoded.userRole
+            const decoded = jwt.decode(token);
+            if(decoded.userRole == 'admin'){
+
+                req.body.userId = decoded.userId;
+                req.body.role = decoded.userRole
+                next();
+            }
+            else{
+               res.status(401).send({ "message": "Unauthorize person" ,status:false });
+            }
             
-            next();
         } catch (error) {
             res.status(400).send({ "message": "Please Login To access" , status:false });
         }
@@ -23,4 +29,4 @@ const userAuth = (req, res, next) => {
     }
 };
 
-module.exports = { userAuth };
+module.exports = { adminAuth };

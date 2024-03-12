@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken");
 const { userModel } = require("../models/user.model");
 const { userAuth } = require("../middlewares/user");
+const { adminAuth } = require("../middlewares/admin");
 
 
 
@@ -55,7 +56,7 @@ userRoute.post("/login", async(req,res)=>{
     const { email, password } = req.body;
 
     try {
-        const user = await userModel.findOne({ email });
+        const user = await userModel.findOne({ email : email});
 
         if (user) {
             // Comparing the hashed password
@@ -77,21 +78,38 @@ userRoute.post("/login", async(req,res)=>{
     }
 });
 
+userRoute.delete('/:id', adminAuth , async(req, res)=>{
+        try {
+              let delUser = await userModel.findByIdAndDelete(req.params.id)
+              res.send({status:true , message :'student deleted successfully'})
+        } catch (error) {
+          res.send({status:false , message :error.message})
+          
+        }
+})
+userRoute.get('/allusers', adminAuth , async(req, res)=>{
+        try {
+              let allUser = await userModel.find()
+              res.send({status:true , message :'data found successfully' , allUsers : allUser})
+        } catch (error) {
+          res.send({status:false , message :error.message})
+        }
+})
+
+
+
   userRoute.post('/add-courses/',userAuth , async (req, res) => {
     const { userId } = req.body;
-    const { courseIds } = req.body; 
+    const { courseId } = req.body; 
   
     try {
       const user = await userModel.findById(userId);
       if (!user) {
         return res.status(404).send({ message: 'User not found' , status:false });
       }
-  
-      // Assuming courseIds is an array containing three course ids
-      user.course.push(...courseIds);
-      user.isSelected = true
+      user.courses.push(courseId);
       await user.save();
-  
+
       res.status(200).send({ message: 'Courses added successfully', status:true });
     } catch (error) {
       console.error('Error adding courses:', error);
@@ -99,22 +117,20 @@ userRoute.post("/login", async(req,res)=>{
     }
   });
 
-  userRoute.get('/getcourses/',userAuth ,  async (req, res) => {
-    const { userId } = req.body;
+  userRoute.get('/getcourses/:id',userAuth ,  async (req, res) => {
     try {
-      const user = await userModel.findById(userId).populate("course");
+      const user = await userModel.findById(req.params.id).populate("courses");
+      
   
       if (!user) {
-        return res.status(404).send({ message: 'User not found', status:false });
+        return res.status(404).send({ message: 'User not found' ,status:false });
       }
-  
-      // Assuming courseIds is an array containing three course ids
-   
-  
-      res.status(200).send({ message: 'Courses Found successfully' , courses : user.course , status:true });
-    } catch (error) {
 
+  
+      res.status(200).send({ message: 'Courses Found successfully' ,courses : user.courses , status:true });
+    } catch (error) {
+      console.log(error)
       res.status(500).send({ message: 'Internal server error' , status:false});
     }
   });
-module.exports = {userRoute}
+  module.exports = {userRoute}

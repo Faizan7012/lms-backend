@@ -8,7 +8,7 @@ const courseSchema = mongoose.Schema({
      versionKey:false
  });
  
- const courseModel = mongoose.model("Course", courseSchema);
+ const courseModel = mongoose.model("course", courseSchema);
  
  module.exports = { courseModel };
  
